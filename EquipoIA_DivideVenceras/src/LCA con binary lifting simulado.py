@@ -14,7 +14,6 @@ class VisualizadorLCA:
         self.ventana_principal.title("Visualizador de LCA: Comparación de Algoritmos")
         self.ventana_principal.geometry("1100x600")
 
-        # --- MODIFICADO ---
         # Definición del Árbol de Ejemplo (Estructura Estática)
         self.num_nodos = 12
         self.aristas = [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7), (5, 8),
@@ -22,10 +21,8 @@ class VisualizadorLCA:
         self.coordenadas = {
             1: (450, 50), 2: (300, 120), 3: (600, 120), 4: (225, 190),
             5: (375, 190), 6: (600, 190), 7: (325, 260), 8: (425, 260),
-            # Nodos nuevos añadidos según la imagen
             9: (475, 330), 10: (375, 330), 11: (375, 400), 12: (375, 470)
         }
-        # --- FIN DE LA MODIFICACIÓN ---
 
         self.radio_nodo = 20
         self.tabla_labels = {}
@@ -96,14 +93,16 @@ class VisualizadorLCA:
                     yield u, i, 0, 0
 
     def obtener_lca(self, u, v):
-        if self.nivel[u] > self.nivel[v]: u, v = v, u
+        if self.nivel[u] > self.nivel[v]:
+            u, v = v, u
         for i in range(self.log_max, -1, -1):
             if self.nivel[v] - (1 << i) >= self.nivel[u]:
                 v = self.padre[v][i]
-        if u == v: return u
+        if u == v:
+            return u
         for i in range(self.log_max, -1, -1):
             if self.padre[u][i] != 0 and self.padre[u][i] != self.padre[v][i]:
-                u = self.padre[u][i];
+                u = self.padre[u][i]
                 v = self.padre[v][i]
         return self.padre[u][0]
 
@@ -112,7 +111,7 @@ class VisualizadorLCA:
         while self.nivel[u_m] > self.nivel[v_m]: u_m = self.padre[u_m][0]
         while self.nivel[v_m] > self.nivel[u_m]: v_m = self.padre[v_m][0]
         while u_m != v_m:
-            u_m = self.padre[u_m][0];
+            u_m = self.padre[u_m][0]
             v_m = self.padre[v_m][0]
         return u_m
 
@@ -121,20 +120,29 @@ class VisualizadorLCA:
         if self.nivel[u] > self.nivel[v]: u, v = v, u
         for i in range(self.log_max, -1, -1):
             if self.nivel[v] - (1 << i) >= self.nivel[u]: v = self.padre[v][i]; yield u, v
-        if u == v: yield u, v; return u
+        if u == v:
+            yield u, v
+            return u
         for i in range(self.log_max, -1, -1):
             if self.padre[u][i] != 0 and self.padre[u][i] != self.padre[v][i]:
-                u = self.padre[u][i];
-                v = self.padre[v][i];
+                u = self.padre[u][i]
+                v = self.padre[v][i]
                 yield u, v
-        yield u, v;
+        yield u, v
         return self.padre[u][0]
 
     def obtener_lca_fuerza_bruta_generador(self, u, v):
-        while self.nivel[u] > self.nivel[v]: u = self.padre[u][0]; yield u, v
-        while self.nivel[v] > self.nivel[u]: v = self.padre[v][0]; yield u, v
-        while u != v: u = self.padre[u][0]; v = self.padre[v][0]; yield u, v
-        yield u, v;
+        while self.nivel[u] > self.nivel[v]:
+            u = self.padre[u][0]
+            yield u, v
+        while self.nivel[v] > self.nivel[u]:
+            v = self.padre[v][0]
+            yield u, v
+        while u != v:
+            u = self.padre[u][0]
+            v = self.padre[v][0]
+            yield u, v
+        yield u, v
         return u
 
     # Creación de la GUI
@@ -163,12 +171,12 @@ class VisualizadorLCA:
         nodos_frame = tk.Frame(query_frame)
         nodos_frame.pack(pady=5)
         tk.Label(nodos_frame, text="N1:").pack(side=tk.LEFT)
-        self.entrada_nodo1 = tk.Entry(nodos_frame, width=4);
-        self.entrada_nodo1.pack(side=tk.LEFT);
+        self.entrada_nodo1 = tk.Entry(nodos_frame, width=4)
+        self.entrada_nodo1.pack(side=tk.LEFT)
         self.entrada_nodo1.insert(0, "7")
-        tk.Label(nodos_frame, text="N2:").pack(side=tk.LEFT, padx=(10, 0));
-        self.entrada_nodo2 = tk.Entry(nodos_frame, width=4);
-        self.entrada_nodo2.pack(side=tk.LEFT);
+        tk.Label(nodos_frame, text="N2:").pack(side=tk.LEFT, padx=(10, 0))
+        self.entrada_nodo2 = tk.Entry(nodos_frame, width=4)
+        self.entrada_nodo2.pack(side=tk.LEFT)
         self.entrada_nodo2.insert(0, "4")
         self.algoritmo_seleccionado = tk.StringVar(value="divide_y_venceras")
         self.rb_bl = tk.Radiobutton(query_frame, text="Divide y Vencerás", variable=self.algoritmo_seleccionado,
@@ -211,13 +219,11 @@ class VisualizadorLCA:
         try:
             u, v = int(self.entrada_nodo1.get()), int(self.entrada_nodo2.get())
 
-            # --- MODIFICADO ---
             # Comprueba contra el diccionario de coordenadas (que ahora tiene 12 nodos)
             if u not in self.coordenadas or v not in self.coordenadas:
                 # Mensaje de error actualizado para usar self.num_nodos
                 messagebox.showerror("Error", f"Nodos inválidos. Por favor ingrese números entre 1 y {self.num_nodos}.")
                 return
-            # --- FIN DE LA MODIFICACIÓN ---
 
             algo_seleccionado = self.algoritmo_seleccionado.get()
             tracemalloc.start()
@@ -415,9 +421,9 @@ class VisualizadorLCA:
             ax1.plot([d['id'] for d in datos_fb], [d['tiempo'] for d in datos_fb], label='Fuerza Bruta (O(N))',
                      color='red', marker='x', linestyle='-')
         ax1.set_title('Complejidad Temporal')
-        ax1.set_xlabel('Número de Búsqueda');
-        ax1.set_ylabel('Tiempo (segundos)');
-        ax1.legend();
+        ax1.set_xlabel('Número de Búsqueda')
+        ax1.set_ylabel('Tiempo (segundos)')
+        ax1.legend()
         ax1.grid(True)
         ax1.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
@@ -428,10 +434,10 @@ class VisualizadorLCA:
         if datos_fb:
             ax2.plot([d['id'] for d in datos_fb], [d['memoria'] for d in datos_fb], label='Fuerza Bruta (O(N))',
                      color='red', marker='x', linestyle='-')
-        ax2.set_title('Complejidad Espacial');
+        ax2.set_title('Complejidad Espacial')
         ax2.set_xlabel('Número de Búsqueda')
-        ax2.set_ylabel('Memoria (bytes)');
-        ax2.legend();
+        ax2.set_ylabel('Memoria (bytes)')
+        ax2.legend()
         ax2.grid(True)
 
         fig.tight_layout(rect=[0, 0.03, 1, 0.95])
