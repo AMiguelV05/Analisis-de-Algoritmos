@@ -108,8 +108,10 @@ class VisualizadorLCA:
 
     def obtener_lca_fuerza_bruta(self, u, v):
         u_m, v_m = u, v
-        while self.nivel[u_m] > self.nivel[v_m]: u_m = self.padre[u_m][0]
-        while self.nivel[v_m] > self.nivel[u_m]: v_m = self.padre[v_m][0]
+        while self.nivel[u_m] > self.nivel[v_m]:
+            u_m = self.padre[u_m][0]
+        while self.nivel[v_m] > self.nivel[u_m]:
+            v_m = self.padre[v_m][0]
         while u_m != v_m:
             u_m = self.padre[u_m][0]
             v_m = self.padre[v_m][0]
@@ -219,9 +221,8 @@ class VisualizadorLCA:
         try:
             u, v = int(self.entrada_nodo1.get()), int(self.entrada_nodo2.get())
 
-            # Comprueba contra el diccionario de coordenadas (que ahora tiene 12 nodos)
+            # Comprueba contra el diccionario de coordenadas
             if u not in self.coordenadas or v not in self.coordenadas:
-                # Mensaje de error actualizado para usar self.num_nodos
                 messagebox.showerror("Error", f"Nodos inválidos. Por favor ingrese números entre 1 y {self.num_nodos}.")
                 return
 
@@ -229,17 +230,11 @@ class VisualizadorLCA:
             tracemalloc.start()
             start_time = time.perf_counter()
 
-            # Determina la complejidad para mostrarla
-            complejidad_temporal = ""
-            complejidad_espacial = ""
             if algo_seleccionado == "divide_y_venceras":
                 lca = self.obtener_lca(u, v)
-                complejidad_temporal = "O(log N)"
-                complejidad_espacial = "O(N log N)"
             else:
                 lca = self.obtener_lca_fuerza_bruta(u, v)
-                complejidad_temporal = "O(N)"
-                complejidad_espacial = "O(N)"
+
 
             end_time = time.perf_counter()
             memoria_actual, memoria_pico = tracemalloc.get_traced_memory()
@@ -297,8 +292,10 @@ class VisualizadorLCA:
     def paso_simulacion_tabla(self, generador):
         try:
             u, i, p_intermedio, p_final = next(generador)
-            for label in self.tabla_labels.values(): label.config(bg='white')
-            if (u, i) in self.tabla_labels: self.tabla_labels[(u, i)].config(bg='yellow')
+            for label in self.tabla_labels.values():
+                label.config(bg='white')
+            if (u, i) in self.tabla_labels:
+                self.tabla_labels[(u, i)].config(bg='yellow')
 
             if p_final != 0:
                 self.tabla_labels[(u, i)].config(text=str(p_final))
@@ -367,11 +364,16 @@ class VisualizadorLCA:
                                             width=3)
         for nodo, (x, y) in self.coordenadas.items():
             color_relleno = "lightblue"
-            if nodo in nodos_visitados: color_relleno = "lightgray"
-            if resaltar_iniciales and nodo in resaltar_iniciales: color_relleno = "deepskyblue"
-            if resaltar_actuales and nodo in resaltar_actuales: color_relleno = "orange"
-            if nodo == nodo_actual_dfs: color_relleno = "violet"
-            if nodo == resaltar_lca: color_relleno = "lightgreen"
+            if nodo in nodos_visitados:
+                color_relleno = "lightgray"
+            if resaltar_iniciales and nodo in resaltar_iniciales:
+                color_relleno = "deepskyblue"
+            if resaltar_actuales and nodo in resaltar_actuales:
+                color_relleno = "orange"
+            if nodo == nodo_actual_dfs:
+                color_relleno = "violet"
+            if nodo == resaltar_lca:
+                color_relleno = "lightgreen"
             self.lienzo.create_oval(x - self.radio_nodo, y - self.radio_nodo, x + self.radio_nodo, y + self.radio_nodo,
                                     fill=color_relleno, outline="black", width=2)
             self.lienzo.create_text(x, y, text=str(nodo), font=("Arial", 12, "bold"))
@@ -392,13 +394,16 @@ class VisualizadorLCA:
                 self.tabla_labels[(u, i)] = label
 
     def obtener_camino_hacia_ancestro(self, u_start, u_end):
-        if u_start == 0 or u_end == 0: return []
+        if u_start == 0 or u_end == 0:
+            return []
         camino = [u_start]
         curr = u_start
         for _ in range(self.num_nodos + 1):
-            if curr == u_end: break
+            if curr == u_end:
+                break
             curr = self.padre[curr][0]
-            if curr == 0: return []
+            if curr == 0:
+                return []
             camino.append(curr)
         return camino
 
