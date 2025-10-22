@@ -41,7 +41,7 @@ Tecnologías utilizadas
 2. **Instala las dependencias**:
 
    ```bash
-   pip install matplotlib numpy
+   pip install matplotlib numpy tracemalloc
    ```
 
 3. **Ejecuta la aplicación**:
