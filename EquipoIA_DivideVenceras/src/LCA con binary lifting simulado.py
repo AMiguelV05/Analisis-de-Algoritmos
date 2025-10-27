@@ -11,10 +11,10 @@ class VisualizadorLCA:
     def __init__(self, ventana_principal):
         # Constructor de la clase que inicializa el árbol y la GUI.
         self.ventana_principal = ventana_principal
-        self.ventana_principal.title("Visualizador de LCA: Comparación de Algoritmos")
+        self.ventana_principal.title("Visualizador de LCA")
         self.ventana_principal.geometry("1100x600")
 
-        # Definición del Árbol de Ejemplo (Estructura Estática)
+        # Definición del Árbol de Ejemplo
         self.num_nodos = 12
         self.aristas = [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7), (5, 8),
                         (8, 9), (8, 10), (10, 11), (11, 12)]
@@ -119,9 +119,12 @@ class VisualizadorLCA:
 
     # eneradores para Simulación Visual de Consulta
     def obtener_lca_generador(self, u, v):
-        if self.nivel[u] > self.nivel[v]: u, v = v, u
+        if self.nivel[u] > self.nivel[v]:
+            u, v = v, u
         for i in range(self.log_max, -1, -1):
-            if self.nivel[v] - (1 << i) >= self.nivel[u]: v = self.padre[v][i]; yield u, v
+            if self.nivel[v] - (1 << i) >= self.nivel[u]:
+                v = self.padre[v][i]
+                yield u, v
         if u == v:
             yield u, v
             return u
@@ -217,7 +220,8 @@ class VisualizadorLCA:
 
     # Lógica de Medición y Simulación
     def ejecutar_medicion_y_simulacion(self):
-        if self.simulacion_activa: return
+        if self.simulacion_activa:
+            return
         try:
             u, v = int(self.entrada_nodo1.get()), int(self.entrada_nodo2.get())
 
@@ -234,7 +238,6 @@ class VisualizadorLCA:
                 lca = self.obtener_lca(u, v)
             else:
                 lca = self.obtener_lca_fuerza_bruta(u, v)
-
 
             end_time = time.perf_counter()
             memoria_actual, memoria_pico = tracemalloc.get_traced_memory()
@@ -260,7 +263,8 @@ class VisualizadorLCA:
 
     # Lógica de Simulaciones Visuales
     def iniciar_simulacion_dfs(self):
-        if self.simulacion_activa: return
+        if self.simulacion_activa:
+            return
         self.controlar_widgets(False)
         self.reiniciar_estado()
         self.etiqueta_resultado.config(text="Simulando DFS...")
@@ -279,11 +283,13 @@ class VisualizadorLCA:
             self.controlar_widgets(True)
 
     def iniciar_simulacion_tabla_dispersa(self):
-        if self.simulacion_activa: return
+        if self.simulacion_activa:
+            return
         self.controlar_widgets(False)
         self.reiniciar_estado()
         # Se necesita ejecutar el DFS primero para tener los padres directos
-        for _ in self.dfs_generador(1, 0, 1, set()): pass
+        for _ in self.dfs_generador(1, 0, 1, set()):
+            pass
         self.etiqueta_resultado.config(text="Simulando Tabla...")
         self.crear_ventana_tabla()
         generador = self.construir_tabla_dispersa_generador()
