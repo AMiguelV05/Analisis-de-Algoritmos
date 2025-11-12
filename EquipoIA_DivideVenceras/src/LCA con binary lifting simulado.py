@@ -6,6 +6,33 @@ import tracemalloc
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import heapq, json
+from collections import Counter
+import os
+
+
+def calcular_frecuencias(texto):
+    return Counter(texto)
+
+
+def generar_codigos(raiz):
+    codigos = {}
+
+    def recorrer(nodo, codigo_actual):
+        if nodo is None:
+            return
+        if nodo.caracter is not None:
+            codigos[nodo.caracter] = codigo_actual if codigo_actual else "0"
+            return
+        recorrer(nodo.izq, codigo_actual + "0")
+        recorrer(nodo.der, codigo_actual + "1")
+    recorrer(raiz, "")
+    return codigos
+
+
+def codificar_datos(texto, codigos):
+    return "".join(codigos[caracter] for caracter in texto)
+
 
 class VisualizadorLCA:
     def __init__(self, ventana_principal):
@@ -37,6 +64,46 @@ class VisualizadorLCA:
         self.reiniciar_estado()
         self.preprocesar_algoritmos()
         self.dibujar_arbol()
+
+    class NodoHuffman:
+        def __init__(self, caracter, frecuencia):
+            self.caracter = caracter
+            self.frecuencia = frecuencia
+            self.izq = None
+            self.der = None
+
+        def __lt__(self, other):
+            return  self.frecuencia < other.frecuencia
+
+    def construir_arbol_huffman(self, frecuencias):
+        heap = [self.NodoHuffman(caracter, frecuencia) for caracter, frecuencia in frecuencias.items()]
+        heapq.heapify(heap)
+        if len(heap) == 1:
+            nodo = heapq.heappop(heap)
+            raiz = self.NodoHuffman(None, nodo.frecuencia)
+            raiz.izq = nodo
+            return raiz
+        while len(heap) > 1:
+            nodo1 = heapq.heappop(heap)
+            nodo2 = heapq.heappop(heap)
+            nuevo = self.NodoHuffman(None, nodo1.frecuencia+nodo2.frecuencia)
+            nuevo.izq = nodo1
+            nuevo.der = nodo2
+            heapq.heappush(heap, nuevo)
+
+        return heap[0] if heap else None
+
+    def decodificar_texto(self, texto_codificado, raiz):
+        if raiz is None:
+            return ""
+        resultado = []
+        nodo_acual = raiz
+        
+        if raiz.izq and not raiz.der and raiz.izq.caracter:
+            return raiz.izq.caracter * len(texto_codificado)
+        for bit in texto_codificado:
+            pass
+        return "".join(resultado)
 
     def reiniciar_estado(self):
         # Inicializa o reinicia las estructuras de datos para los algoritmos.
