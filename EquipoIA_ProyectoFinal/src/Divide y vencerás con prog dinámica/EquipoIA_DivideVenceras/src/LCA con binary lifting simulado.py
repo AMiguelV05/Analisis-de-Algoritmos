@@ -6,33 +6,6 @@ import tracemalloc
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-import heapq, json
-from collections import Counter
-import os
-
-
-def calcular_frecuencias(texto):
-    return Counter(texto)
-
-
-def generar_codigos(raiz):
-    codigos = {}
-
-    def recorrer(nodo, codigo_actual):
-        if nodo is None:
-            return
-        if nodo.caracter is not None:
-            codigos[nodo.caracter] = codigo_actual if codigo_actual else "0"
-            return
-        recorrer(nodo.izq, codigo_actual + "0")
-        recorrer(nodo.der, codigo_actual + "1")
-    recorrer(raiz, "")
-    return codigos
-
-
-def codificar_datos(texto, codigos):
-    return "".join(codigos[caracter] for caracter in texto)
-
 
 class VisualizadorLCA:
     def __init__(self, ventana_principal):
@@ -41,7 +14,7 @@ class VisualizadorLCA:
         self.ventana_principal.title("Visualizador de LCA")
         self.ventana_principal.geometry("1100x600")
 
-        # Definición del Árbol de Ejemplo
+        # Definición del Árbol
         self.num_nodos = 12
         self.aristas = [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7), (5, 8),
                         (8, 9), (8, 10), (10, 11), (11, 12)]
@@ -65,46 +38,6 @@ class VisualizadorLCA:
         self.preprocesar_algoritmos()
         self.dibujar_arbol()
 
-    class NodoHuffman:
-        def __init__(self, caracter, frecuencia):
-            self.caracter = caracter
-            self.frecuencia = frecuencia
-            self.izq = None
-            self.der = None
-
-        def __lt__(self, other):
-            return  self.frecuencia < other.frecuencia
-
-    def construir_arbol_huffman(self, frecuencias):
-        heap = [self.NodoHuffman(caracter, frecuencia) for caracter, frecuencia in frecuencias.items()]
-        heapq.heapify(heap)
-        if len(heap) == 1:
-            nodo = heapq.heappop(heap)
-            raiz = self.NodoHuffman(None, nodo.frecuencia)
-            raiz.izq = nodo
-            return raiz
-        while len(heap) > 1:
-            nodo1 = heapq.heappop(heap)
-            nodo2 = heapq.heappop(heap)
-            nuevo = self.NodoHuffman(None, nodo1.frecuencia+nodo2.frecuencia)
-            nuevo.izq = nodo1
-            nuevo.der = nodo2
-            heapq.heappush(heap, nuevo)
-
-        return heap[0] if heap else None
-
-    def decodificar_texto(self, texto_codificado, raiz):
-        if raiz is None:
-            return ""
-        resultado = []
-        nodo_acual = raiz
-        
-        if raiz.izq and not raiz.der and raiz.izq.caracter:
-            return raiz.izq.caracter * len(texto_codificado)
-        for bit in texto_codificado:
-            pass
-        return "".join(resultado)
-
     def reiniciar_estado(self):
         # Inicializa o reinicia las estructuras de datos para los algoritmos.
         self.n_maximo = self.num_nodos + 1
@@ -114,7 +47,7 @@ class VisualizadorLCA:
         self.padre = [[0] * (self.log_max + 1) for _ in range(self.n_maximo)]
         self.construir_lista_adyacencia()
 
-    def preprocesar_algoritmos(self):  # Ejecuta las fases de preprocesamiento necesarias sin simulación.
+    def preprocesar_algoritmos(self):
         # Deep First Search (DFS) para niveles y padres directos
         stack = [(1, 0, 1)]
         visitados = {1}
@@ -126,7 +59,7 @@ class VisualizadorLCA:
                 if v != p and v not in visitados:
                     visitados.add(v)
                     stack.append((v, u, l + 1))
-        # Tabla de saltos (solo para Binary Lifting)
+        # Tabla de saltos
         for i in range(1, self.log_max + 1):
             for u in range(1, self.num_nodos + 1):
                 ancestro_intermedio = self.padre[u][i - 1]
@@ -174,24 +107,20 @@ class VisualizadorLCA:
         return self.padre[u][0]
 
     def obtener_lca_fuerza_bruta(self, u, v):
-        u_m, v_m = u, v
-        while self.nivel[u_m] > self.nivel[v_m]:
-            u_m = self.padre[u_m][0]
-        while self.nivel[v_m] > self.nivel[u_m]:
-            v_m = self.padre[v_m][0]
-        while u_m != v_m:
-            u_m = self.padre[u_m][0]
-            v_m = self.padre[v_m][0]
-        return u_m
+        while self.nivel[u] > self.nivel[v]:
+            u = self.padre[u][0]
+        while self.nivel[v] > self.nivel[u]:
+            v = self.padre[v][0]
+        while u != v:
+            u = self.padre[u][0]
+            v = self.padre[v][0]
+        return u
 
     # eneradores para Simulación Visual de Consulta
     def obtener_lca_generador(self, u, v):
-        if self.nivel[u] > self.nivel[v]:
-            u, v = v, u
+        if self.nivel[u] > self.nivel[v]: u, v = v, u
         for i in range(self.log_max, -1, -1):
-            if self.nivel[v] - (1 << i) >= self.nivel[u]:
-                v = self.padre[v][i]
-                yield u, v
+            if self.nivel[v] - (1 << i) >= self.nivel[u]: v = self.padre[v][i]; yield u, v
         if u == v:
             yield u, v
             return u
@@ -287,8 +216,7 @@ class VisualizadorLCA:
 
     # Lógica de Medición y Simulación
     def ejecutar_medicion_y_simulacion(self):
-        if self.simulacion_activa:
-            return
+        if self.simulacion_activa: return
         try:
             u, v = int(self.entrada_nodo1.get()), int(self.entrada_nodo2.get())
 
@@ -299,14 +227,16 @@ class VisualizadorLCA:
 
             algo_seleccionado = self.algoritmo_seleccionado.get()
             tracemalloc.start()
-            start_time = time.perf_counter()
 
             if algo_seleccionado == "divide_y_venceras":
+                start_time = time.perf_counter()
                 lca = self.obtener_lca(u, v)
+                end_time = time.perf_counter()
             else:
+                start_time = time.perf_counter()
                 lca = self.obtener_lca_fuerza_bruta(u, v)
+                end_time = time.perf_counter()
 
-            end_time = time.perf_counter()
             memoria_actual, memoria_pico = tracemalloc.get_traced_memory()
             tracemalloc.stop()
 
@@ -330,8 +260,7 @@ class VisualizadorLCA:
 
     # Lógica de Simulaciones Visuales
     def iniciar_simulacion_dfs(self):
-        if self.simulacion_activa:
-            return
+        if self.simulacion_activa: return
         self.controlar_widgets(False)
         self.reiniciar_estado()
         self.etiqueta_resultado.config(text="Simulando DFS...")
@@ -350,13 +279,11 @@ class VisualizadorLCA:
             self.controlar_widgets(True)
 
     def iniciar_simulacion_tabla_dispersa(self):
-        if self.simulacion_activa:
-            return
+        if self.simulacion_activa: return
         self.controlar_widgets(False)
         self.reiniciar_estado()
         # Se necesita ejecutar el DFS primero para tener los padres directos
-        for _ in self.dfs_generador(1, 0, 1, set()):
-            pass
+        for _ in self.dfs_generador(1, 0, 1, set()): pass
         self.etiqueta_resultado.config(text="Simulando Tabla...")
         self.crear_ventana_tabla()
         generador = self.construir_tabla_dispersa_generador()
@@ -500,7 +427,7 @@ class VisualizadorLCA:
                      color='red', marker='x', linestyle='-')
         ax1.set_title('Complejidad Temporal')
         ax1.set_xlabel('Número de Búsqueda')
-        ax1.set_ylabel('Tiempo (segundos)')
+        ax1.set_ylabel('Tiempo')
         ax1.legend()
         ax1.grid(True)
         ax1.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))

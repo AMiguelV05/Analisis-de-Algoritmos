@@ -12,8 +12,8 @@ Características principales
 * **Simulación interactiva** de la construcción de la tabla de saltos (Binary Lifting).
 * **Comparación visual** entre los algoritmos de:
 
-  * 🔵 *Divide y Vencerás (Binary Lifting)*
-  * 🔴 *Fuerza Bruta*
+  * *Divide y Vencerás (Binary Lifting)*
+  * *Fuerza Bruta*
 * **Gráficos de complejidad** temporal y espacial (con `matplotlib`).
 * Interfaz creada con **Tkinter**.
 
@@ -28,7 +28,7 @@ Tecnologías utilizadas
 
 ---
 
-⚙️ Instalación
+Instalación
 
 1. **Clona este repositorio**:
 
